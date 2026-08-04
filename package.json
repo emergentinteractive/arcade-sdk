@@ -1,0 +1,62 @@
+{
+    "name": "@emergentinteractive/arcade-sdk",
+    "version": "0.1.1",
+    "description": "The browser bridge for games published on Emergent Arcade.",
+    "author": "Emergent Interactive",
+    "license": "MIT",
+    "type": "module",
+    "sideEffects": false,
+    "keywords": [
+        "arcade",
+        "browser-game",
+        "game-sdk",
+        "messagechannel",
+        "typescript"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/emergentinteractive/arcade-sdk.git"
+    },
+    "homepage": "https://github.com/emergentinteractive/arcade-sdk#readme",
+    "bugs": {
+        "url": "https://github.com/emergentinteractive/arcade-sdk/issues"
+    },
+    "files": [
+        "dist",
+        "src",
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE"
+    ],
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "clean": "node scripts/clean.mjs",
+        "format": "prettier --write . --ignore-unknown",
+        "format:check": "prettier --check . --ignore-unknown",
+        "release:check": "npm run clean && npm test && npm run typecheck && npm run verify:package",
+        "test": "npm run build && node --test test/*.test.mjs",
+        "typecheck": "tsc -p tsconfig.json --noEmit",
+        "verify:package": "node scripts/verify-package.mjs"
+    },
+    "devDependencies": {
+        "prettier": "^3.6.2",
+        "typescript": "^5.9.2"
+    },
+    "packageManager": "npm@11.5.1",
+    "engines": {
+        "node": ">=20"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    }
+}

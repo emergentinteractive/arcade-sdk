@@ -1,0 +1,60 @@
+name: Bug report
+description: Report reproducible incorrect SDK behavior
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. For security vulnerabilities, stop here and use the private reporting link under Security.
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+      description: The exact installed version, such as 0.1.1.
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, browser version, operating system, and bundler or runtime.
+      placeholder: Safari 18 on iOS 18, Vite 7
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide a small repository, code sample, or exact steps that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove account data, credentials, tokens, and other private information.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and pull requests for this problem.
+          required: true
+        - label: This report does not contain a security vulnerability or sensitive data.
+          required: true

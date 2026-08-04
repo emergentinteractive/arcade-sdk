@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/emergentinteractive/arcade-sdk/security/advisories/new
+    about: Report suspected vulnerabilities privately to the maintainers.
+  - name: SDK documentation
+    url: https://arcade.emergentinteractive.com/developers/docs
+    about: Read the SDK and game integration documentation.
