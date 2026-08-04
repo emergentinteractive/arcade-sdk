@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Point package metadata and contributor documentation at the public GitHub repository.
+- Scope monorepo release-tag validation to Arcade SDK tags.
+
 ## 0.1.1
 
 - Remove the non-portable implicit `prepack` lifecycle hook.

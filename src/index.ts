@@ -38,7 +38,7 @@ export {
     parsePortEnvelope,
 } from "./runtime.js";
 
-export const SDK_VERSION = "0.1.1";
+export const SDK_VERSION = "0.1.2";
 const DEFAULT_PORTAL_ORIGIN = "https://arcade.emergentinteractive.com";
 const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_RUN_DURATION_MS = 3_600_000;

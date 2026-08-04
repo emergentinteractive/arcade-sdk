@@ -68,8 +68,8 @@ contents.
 
 ## Maintainer release
 
-Release automation is not active in this repository yet. Before a maintainer publishes
-a release, update the version in `package.json`, document it in `CHANGELOG.md`, and run:
+Release automation is not active in this repository yet. Before publishing a new,
+unpublished version, update `package.json` and `CHANGELOG.md`, then run:
 
 ```sh
 npm ci --ignore-scripts
@@ -78,15 +78,23 @@ npm run release:check
 npm pack --dry-run --ignore-scripts
 ```
 
-Once GitHub Actions and npm trusted publishing have been enabled, the release commit can
-be tagged with a `vX.Y.Z` tag that exactly matches `package.json`:
+An authorized maintainer can then authenticate to npm outside the repository and publish
+the verified package manually:
+
+```sh
+npm publish --access public --ignore-scripts
+```
+
+Never reuse a version already present in npm; published versions are immutable. Once
+GitHub Actions and npm trusted publishing have been enabled, the release commit can be
+tagged with a `vX.Y.Z` tag that exactly matches `package.json`:
 
 ```sh
 git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The planned publish workflow uses GitHub OIDC and does not require a long-lived npm
-token. Protect release tags and the `npm` GitHub environment. In npm trusted-publisher
-settings, select the `emergentinteractive/arcade-sdk` repository, `publish.yml` workflow,
-and `npm` environment. npm versions are immutable, so never reuse a published version.
+The planned publish workflow uses GitHub OIDC and does not require a long-lived npm token.
+Protect release tags and the `npm` GitHub environment. In npm trusted-publisher settings,
+select the `emergentinteractive/arcade-sdk` repository, `publish.yml` workflow, and `npm`
+environment.

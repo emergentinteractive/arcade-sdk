@@ -43,7 +43,7 @@ assert.ok(
     "Published source maps require src to be included in the package.",
 );
 
-if (process.env.CI_COMMIT_TAG) {
+if (process.env.CI_COMMIT_TAG?.startsWith("arcade-sdk-v")) {
     assert.equal(
         process.env.CI_COMMIT_TAG,
         `arcade-sdk-v${metadata.version}`,

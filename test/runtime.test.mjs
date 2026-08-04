@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
     ARCADE_PROTOCOL,
@@ -13,6 +15,29 @@ import {
 const packageMetadata = JSON.parse(
     await readFile(new URL("../package.json", import.meta.url), "utf8"),
 );
+
+function runPackageVerifier(tag) {
+    const environment = { ...process.env };
+    delete environment.CI_COMMIT_TAG;
+    delete environment.GITHUB_REF;
+    delete environment.GITHUB_REF_NAME;
+    delete environment.GITHUB_REF_TYPE;
+    if (tag !== null) environment.CI_COMMIT_TAG = tag;
+
+    return spawnSync(
+        process.execPath,
+        [
+            fileURLToPath(
+                new URL("../scripts/verify-package.mjs", import.meta.url),
+            ),
+        ],
+        {
+            cwd: fileURLToPath(new URL("../", import.meta.url)),
+            encoding: "utf8",
+            env: environment,
+        },
+    );
+}
 
 test("infers the exact staging portal origin from the embedding referrer", async () => {
     const parent = {};
@@ -49,6 +74,24 @@ test("infers the exact staging portal origin from the embedding referrer", async
     assert.equal((await connected).sdkVersion, packageMetadata.version);
     client.close();
     channel.port2.close();
+});
+
+test("scopes GitLab release-tag validation to SDK tags", () => {
+    for (const tag of [
+        null,
+        "production-2026-08-04",
+        `arcade-sdk-v${packageMetadata.version}`,
+    ]) {
+        const verified = runPackageVerifier(tag);
+        assert.equal(verified.status, 0, verified.stderr || verified.stdout);
+    }
+
+    const rejected = runPackageVerifier("arcade-sdk-v999.0.0");
+    assert.notEqual(rejected.status, 0);
+    assert.match(
+        rejected.stderr,
+        /release tag must match the SDK package version/i,
+    );
 });
 
 test("accepts only the versioned connect envelope", () => {

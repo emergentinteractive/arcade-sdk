@@ -1,6 +1,6 @@
 {
     "name": "@emergentinteractive/arcade-sdk",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "The browser bridge for games published on Emergent Arcade.",
     "author": "Emergent Interactive",
     "license": "MIT",
