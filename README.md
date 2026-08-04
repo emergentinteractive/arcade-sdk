@@ -86,7 +86,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The publish workflow uses GitHub OIDC and does not require a long-lived npm token. Protect
-release tags and the `npm` GitHub environment. In npm trusted-publisher settings, select
-the `emergentinteractive/arcade-sdk` repository, `publish.yml` workflow, and `npm`
-environment. npm versions are immutable, so never reuse a published version.
+The planned publish workflow uses GitHub OIDC and does not require a long-lived npm
+token. Protect release tags and the `npm` GitHub environment. In npm trusted-publisher
+settings, select the `emergentinteractive/arcade-sdk` repository, `publish.yml` workflow,
+and `npm` environment. npm versions are immutable, so never reuse a published version.
