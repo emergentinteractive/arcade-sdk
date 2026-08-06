@@ -79,6 +79,14 @@ export interface RunStartInput {
     mode: string;
 }
 
+export interface RunChallenge {
+    id: string;
+    date: string;
+    attempt: number | null;
+    attemptLimit: number | null;
+    attemptsRemaining: number | null;
+}
+
 export interface RunStartResult {
     runHandle: string;
     seed: string;
@@ -86,6 +94,7 @@ export interface RunStartResult {
     ruleset: string;
     locale: string;
     capabilities: PlayerCapabilities;
+    challenge?: RunChallenge;
 }
 
 export interface RunCompleteInput {

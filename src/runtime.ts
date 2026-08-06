@@ -5,6 +5,7 @@ import {
     type ErrorResponseEnvelope,
     type JsonValue,
     type PortEnvelope,
+    type RunChallenge,
     type RunCompleteResult,
     type RunStartResult,
     type SuccessResponseEnvelope,
@@ -114,7 +115,71 @@ export function parseRunStartResult(value: JsonValue): RunStartResult {
         }
     }
 
+    if ("challenge" in value && parseRunChallenge(value.challenge) === null) {
+        throw new ArcadeProtocolError(
+            "invalid_response",
+            "The portal returned invalid run challenge metadata.",
+        );
+    }
+
     return value as unknown as RunStartResult;
+}
+
+function parseRunChallenge(value: unknown): RunChallenge | null {
+    if (
+        !isRecord(value) ||
+        typeof value.id !== "string" ||
+        value.id.length < 1 ||
+        value.id.length > 200 ||
+        typeof value.date !== "string" ||
+        !validUtcDate(value.date) ||
+        !(value.attempt === null || positiveInteger(value.attempt)) ||
+        !(value.attemptLimit === null || positiveInteger(value.attemptLimit)) ||
+        !(
+            value.attemptsRemaining === null ||
+            nonNegativeInteger(value.attemptsRemaining)
+        )
+    ) {
+        return null;
+    }
+
+    const attempt = value.attempt as number | null;
+    const attemptLimit = value.attemptLimit as number | null;
+    const attemptsRemaining = value.attemptsRemaining as number | null;
+    if (
+        (attempt !== null &&
+            (attemptLimit === null || attempt > attemptLimit)) ||
+        (attemptsRemaining !== null &&
+            (attemptLimit === null || attemptsRemaining > attemptLimit)) ||
+        (attempt === null &&
+            attemptsRemaining !== null &&
+            attemptsRemaining !== 0) ||
+        (attempt !== null &&
+            attemptsRemaining !== null &&
+            attempt + attemptsRemaining !== attemptLimit)
+    ) {
+        return null;
+    }
+
+    return value as unknown as RunChallenge;
+}
+
+function positiveInteger(value: unknown): value is number {
+    return Number.isSafeInteger(value) && Number(value) > 0;
+}
+
+function nonNegativeInteger(value: unknown): value is number {
+    return Number.isSafeInteger(value) && Number(value) >= 0;
+}
+
+function validUtcDate(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+
+    return (
+        Number.isFinite(parsed.getTime()) &&
+        parsed.toISOString().slice(0, 10) === value
+    );
 }
 
 export function parseRunCompleteResult(value: JsonValue): RunCompleteResult {

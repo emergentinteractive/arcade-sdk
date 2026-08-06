@@ -149,13 +149,158 @@ test("correlates port requests and ignores spoofed response ids", async () => {
                     rewards: true,
                     ratings: true,
                 },
+                challenge: {
+                    id: "faultline:daily_sprint:2026-08-06",
+                    date: "2026-08-06",
+                    attempt: 2,
+                    attemptLimit: 3,
+                    attemptsRemaining: 1,
+                },
             },
         });
     };
     const run = await client.runs.start({ mode: "score_attack" });
     assert.equal(run.seed, "server-seed");
+    assert.deepEqual(run.challenge, {
+        id: "faultline:daily_sprint:2026-08-06",
+        date: "2026-08-06",
+        attempt: 2,
+        attemptLimit: 3,
+        attemptsRemaining: 1,
+    });
     client.close();
     channel.port2.close();
+});
+
+test("accepts casual daily challenge metadata with exhausted attempts", async () => {
+    const channel = new MessageChannel();
+    const client = new ArcadeClient(channel.port1, 500);
+    channel.port2.onmessage = ({ data }) => {
+        channel.port2.postMessage({
+            protocol: ARCADE_PROTOCOL,
+            type: "response",
+            id: data.id,
+            ok: true,
+            result: {
+                runHandle: "casual-daily-run",
+                seed: "shared-daily-seed",
+                mode: "daily_sprint",
+                ruleset: "faultline-daily-sprint-v1",
+                locale: "en",
+                capabilities: {
+                    authenticated: true,
+                    ranked: false,
+                    rewards: false,
+                    ratings: false,
+                },
+                challenge: {
+                    id: "faultline:daily_sprint:2026-08-06",
+                    date: "2026-08-06",
+                    attempt: null,
+                    attemptLimit: 3,
+                    attemptsRemaining: 0,
+                },
+            },
+        });
+    };
+
+    const run = await client.runs.start({ mode: "daily_sprint" });
+    assert.equal(run.challenge?.attempt, null);
+    assert.equal(run.challenge?.attemptsRemaining, 0);
+    client.close();
+    channel.port2.close();
+});
+
+test("preserves start responses from hosts without challenge metadata", async () => {
+    const channel = new MessageChannel();
+    const client = new ArcadeClient(channel.port1, 500);
+    channel.port2.onmessage = ({ data }) => {
+        channel.port2.postMessage({
+            protocol: ARCADE_PROTOCOL,
+            type: "response",
+            id: data.id,
+            ok: true,
+            result: {
+                runHandle: "classic-run",
+                seed: "classic-seed",
+                mode: "score_attack",
+                ruleset: "classic-rules-v1",
+                locale: "en",
+                capabilities: {
+                    authenticated: true,
+                    ranked: true,
+                    rewards: true,
+                    ratings: true,
+                },
+            },
+        });
+    };
+
+    const run = await client.runs.start({ mode: "score_attack" });
+    assert.equal(run.runHandle, "classic-run");
+    assert.equal("challenge" in run, false);
+    client.close();
+    channel.port2.close();
+});
+
+test("rejects malformed or inconsistent run challenge metadata", async () => {
+    for (const challenge of [
+        {
+            id: "faultline:daily_sprint:2026-02-30",
+            date: "2026-02-30",
+            attempt: 1,
+            attemptLimit: 3,
+            attemptsRemaining: 2,
+        },
+        {
+            id: "faultline:daily_sprint:2026-08-06",
+            date: "2026-08-06",
+            attempt: 3,
+            attemptLimit: 3,
+            attemptsRemaining: 1,
+        },
+        {
+            id: "faultline:daily_sprint:2026-08-06",
+            date: "2026-08-06",
+            attempt: null,
+            attemptLimit: 3,
+            attemptsRemaining: 2,
+        },
+    ]) {
+        const channel = new MessageChannel();
+        const client = new ArcadeClient(channel.port1, 500);
+        channel.port2.onmessage = ({ data }) => {
+            channel.port2.postMessage({
+                protocol: ARCADE_PROTOCOL,
+                type: "response",
+                id: data.id,
+                ok: true,
+                result: {
+                    runHandle: "bad-daily-run",
+                    seed: "shared-daily-seed",
+                    mode: "daily_sprint",
+                    ruleset: "faultline-daily-sprint-v1",
+                    locale: "en",
+                    capabilities: {
+                        authenticated: true,
+                        ranked: true,
+                        rewards: false,
+                        ratings: true,
+                    },
+                    challenge,
+                },
+            });
+        };
+
+        await assert.rejects(
+            client.runs.start({ mode: "daily_sprint" }),
+            (error) =>
+                error.code === "invalid_response" &&
+                /challenge metadata/i.test(error.message),
+        );
+        client.close();
+        channel.port2.close();
+    }
 });
 
 test("rejects malformed or non-finite JSON values", () => {

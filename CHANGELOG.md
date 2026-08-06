@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3
+
+- Add optional UTC daily-challenge identity and attempt metadata to run starts.
+- Reject malformed challenge dates and inconsistent attempt counters.
+- Expand the runtime examples and document capability-gated proofs, completion states,
+  lifecycle handling, and the standalone manual-release path; ignore local npm auth and
+  tarball artifacts.
+
 ## 0.1.2
 
 - Point package metadata and contributor documentation at the public GitHub repository.
